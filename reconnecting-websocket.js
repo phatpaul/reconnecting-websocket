@@ -78,6 +78,11 @@
  * @fileoverview
  */
 
+const TAG = 'ReconnectingWebSocket';
+
+/**
+ * @param {WebSocket} ws 
+ */
 function logClose(ws) {
     let readState = "";
     if (ws) {
@@ -96,7 +101,7 @@ function logClose(ws) {
             default:
         }
     }
-    console.log("ws.onclose() readyState: " + readState);
+    console.log(TAG, "ws.onclose() readyState: " + readState);
 }
 
 /** 
@@ -243,12 +248,12 @@ function ReconnectingWebSocket(url, protocols, options = {}) {
         }
 
         if (self.debug || ReconnectingWebSocket.debugAll) {
-            console.debug('ReconnectingWebSocket', 'attempt-connect', self.getUrl());
+            console.debug(TAG, 'attempt-connect', self.getUrl());
         }
 
         timeout = setTimeout(function () {
             if (self.debug || ReconnectingWebSocket.debugAll) {
-                console.debug('ReconnectingWebSocket', 'connection-timeout', self.getUrl());
+                console.debug(TAG, 'connection-timeout', self.getUrl());
             }
             timedOut = true;
             if (!!ws && ws.readyState !== WebSocket.CLOSED) {
@@ -262,7 +267,7 @@ function ReconnectingWebSocket(url, protocols, options = {}) {
             // troubleshooting, double-check status
             if (!ws || ws.readyState != ws.OPEN) throw "state not open!";
             if (self.debug || ReconnectingWebSocket.debugAll) {
-                console.debug('ReconnectingWebSocket', 'onopen', self.getUrl());
+                console.debug(TAG, 'onopen', self.getUrl());
             }
             self.protocol = ws.protocol;
             self.readyState = WebSocket.OPEN;
@@ -287,7 +292,7 @@ function ReconnectingWebSocket(url, protocols, options = {}) {
                 eventTarget.dispatchEvent(e);
                 if (!reconnectAttempt && !timedOut) {
                     if (self.debug || ReconnectingWebSocket.debugAll) {
-                        console.debug('ReconnectingWebSocket', 'onclose', self.getUrl());
+                        console.debug(TAG, 'onclose', self.getUrl());
                     }
                     eventTarget.dispatchEvent(new CloseEvent('close', { code: event.code, reason: event.reason, wasClean: event.wasClean }));
                 }
@@ -304,13 +309,13 @@ function ReconnectingWebSocket(url, protocols, options = {}) {
         };
         ws.onmessage = function (event) {
             if (self.debug || ReconnectingWebSocket.debugAll) {
-                console.debug('ReconnectingWebSocket', 'onmessage', self.getUrl(), event.data);
+                console.debug(TAG, 'onmessage', self.getUrl(), event.data);
             }
             eventTarget.dispatchEvent(new MessageEvent('message', { data: event.data }));
         };
         ws.onerror = function (event) {
             if (self.debug || ReconnectingWebSocket.debugAll) {
-                console.debug('ReconnectingWebSocket', 'onerror', self.getUrl(), event);
+                console.debug(TAG, 'onerror', self.getUrl(), event);
             }
             eventTarget.dispatchEvent(new Event('error'));
         };
@@ -329,7 +334,7 @@ function ReconnectingWebSocket(url, protocols, options = {}) {
     this.send = function (data) {
         if (ws) {
             if (self.debug || ReconnectingWebSocket.debugAll) {
-                console.debug('ReconnectingWebSocket', 'send', self.getUrl(), data);
+                console.debug(TAG, 'send', self.getUrl(), data);
             }
             return ws.send(data);
         } else {
